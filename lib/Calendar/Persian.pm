@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.03';
+$Calendar::Persian::VERSION = '0.09';
 
 use strict; use warnings;
 
@@ -10,7 +10,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.03
+Version 0.09
 
 =cut
 
@@ -57,17 +57,18 @@ sub new {
     return $self;
 }
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-The  Persian calendar  is  solar, with the particularity that the year is defined
-by  two  successive,  apparent  passages  of  the Sun through the vernal (spring)
-equinox. It is based on precise astronomical observations,  and  moreover  uses a
+The Persian  calendar  is  solar, with the particularity that the year defined by
+two  successive,  apparent  passages    of  the  Sun  through the vernal (spring)
+equinox.  It  is based  on precise astronomical observations, and moreover uses a
 sophisticated intercalation system, which makes it more accurate than its younger
-European counterpart, the Gregorian calendar. It is currently used in Iran as the
-official   calendar   of  the country.  The starting point of the current Iranian
-calendar is the vernal equinox occurred on Friday March 22 of the year A.D. 622.
+European  counterpart,the Gregorian calendar. It is currently used in Iran as the
+official  calendar  of  the  country. The  starting  point of the current Iranian
+calendar is  the  vernal equinox occurred on Friday March 22 of the year A.D. 622.
+Persian Calendar for the month of Farvadin year 1390.
 
-=head2 Persian Calendar for the month of Farvadin year 1390.
+=head1 Persian Calendar for the month of Farvadin year 1390.
 
             Farvardin [1390]
 
@@ -78,7 +79,7 @@ calendar is the vernal equinox occurred on Friday March 22 of the year A.D. 622.
      21   22   23   24   25   26   27
      28   29   30   31
 
-=head2 Months Names
+=head1 MONTHS
 
     Order     Modern Persian Name
     1         Farvardin
@@ -94,7 +95,7 @@ calendar is the vernal equinox occurred on Friday March 22 of the year A.D. 622.
     11        Bahman
     12        Esfand
 
-=head2 Weekdays
+=head1 WEEKDAYS
 
     Number   Gregorian    Persian
     0        Sunday       Yekshanbeh
@@ -244,21 +245,20 @@ sub today {
     return $self->from_gregorian($today->year+1900, $today->mon+1, $today->mday);
 }
 
-=head2 days_in_year_month(yyyy, mm)
+=head2 days_in_month()
 
 Return number of days in the given year and month of Persian calendar.
 
     use strict; use warnings;
     use Calendar::Persian;
 
-    my $persian = Calendar::Persian->new(1932,12,26);
-    print "Days is Phalguna 1932: [" . $persian->days_in_year_month() . "]\n";
-
-    print "Days is Chaitra 1932: [" . $persian->days_in_year_month(1932,1) . "]\n";
+    my $calendar = Calendar::Persian->new(1390, 12, 26);
+    print "Days is Esfand 1390:    [" . $calendar->days_in_month()       . "]\n";
+    print "Days is Farvardin 1390: [" . $calendar->days_in_month(1390,1) . "]\n";
 
 =cut
 
-sub days_in_year_month {
+sub days_in_month {
     my ($self, $yyyy, $mm) = @_;
 
     $yyyy = $self->{yyyy} unless defined $yyyy;
@@ -289,11 +289,11 @@ month of Persian calendar if no argument is passed in.
     use strict; use warnings;
     use Calendar::Persian;
 
-    my $persian = Calendar::Persian->new(1932,1,1);
-    print $saka->get_persian();
+    my $calendar = Calendar::Persian->new(1390,1,1);
+    print $calendar->get_calendar();
 
-    # Print calendar for year 1932 and month 12.
-    print $persian->get_calendar(1932, 12);
+    # Print calendar for year 1390 and month 1.
+    print $calendar->get_calendar(1390, 1);
 
 =cut
 
@@ -310,7 +310,7 @@ sub get_calendar {
     $calendar .= "\nSun  Mon  Tue  Wed  Thu  Fri  Sat\n";
 
     $start_index = $self->dow($yyyy, $mm, 1);
-    $days = $self->days_in_year_month($yyyy, $mm);
+    $days = $self->days_in_month($yyyy, $mm);
     map { $calendar .= "     " } (1..($start_index%=7));
     foreach (1 .. $days) {
         $calendar .= sprintf("%3d  ", $_);
@@ -447,10 +447,10 @@ sub _validate_date {
 
     die("ERROR: Invalid year [$yyyy].\n")
         unless (defined($yyyy) && ($yyyy =~ /^\d{4}$/) && ($yyyy > 0));
-    die("ERROR: Invalid month number [$mm].\n")
-        unless (defined($mm) && ($mm =~ /^\d{1,2}$/) && ($mm >= 1 || $mm <= 12));
-    die("ERROR: Invalid day number [$dd].\n")
-        unless (defined($dd) && ($dd =~ /^\d{1,2}$/) && ($dd >= 1 || $mm <= 31));
+    die("ERROR: Invalid month [$mm].\n")
+        unless (defined($mm) && ($mm =~ /^\d{1,2}$/) && ($mm >= 1) && ($mm <= 12));
+    die("ERROR: Invalid day [$dd].\n")
+        unless (defined($dd) && ($dd =~ /^\d{1,2}$/) && ($dd >= 1) && ($dd <= 31));
 }
 
 =head1 AUTHOR

@@ -1,4 +1,3 @@
-Build.PL
 Changes
 MANIFEST
 MANIFEST.SKIP
@@ -10,5 +9,3 @@ t/00-load.t
 t/manifest.t
 t/boilerplate.t
 t/pod.t
-META.yml
-SIGNATURE    Added here by Module::Build

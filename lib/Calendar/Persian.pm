@@ -1,8 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.09';
-
-use strict; use warnings;
+$Calendar::Persian::VERSION = '0.10';
 
 =head1 NAME
 
@@ -10,12 +8,13 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
 our $DEBUG = 0;
 
+use strict; use warnings;
 use Data::Dumper;
 use Time::localtime;
 use POSIX qw/floor ceil/;
@@ -498,7 +497,7 @@ L<http://search.cpan.org/dist/Calendar-Persian/>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2011 - 2014 Mohammad S Anwar.
+Copyright (C) 2011 - 2015 Mohammad S Anwar.
 
 This  program  is  free software; you can redistribute it and/or modify it under
 the  terms  of the the Artistic License (2.0). You may obtain a copy of the full

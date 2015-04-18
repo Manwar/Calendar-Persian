@@ -4,10 +4,10 @@ use warnings FATAL => 'all';
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    NAME          => 'Calendar::Persian',
-    AUTHOR        => q{Mohammad S Anwar <mohammad.anwar@yahoo.com>},
-    VERSION_FROM  => 'lib/Calendar/Persian.pm',
-    ABSTRACT_FROM => 'lib/Calendar/Persian.pm',
+    NAME               => 'Calendar::Persian',
+    AUTHOR             => q{Mohammad S Anwar <mohammad.anwar@yahoo.com>},
+    VERSION_FROM       => 'lib/Calendar/Persian.pm',
+    ABSTRACT_FROM      => 'lib/Calendar/Persian.pm',
     LICENSE            => 'artistic_2',
     PL_FILES           => {},
     MIN_PERL_VERSION   => 5.006,
@@ -19,9 +19,11 @@ WriteMakefile(
     },
 
     PREREQ_PM => {
-        'Time::localtime' => 1.02,
-        'List::Util'      => 1.21,
-        'Date::Calc'      => 5.7,
+        'Moo'                     => 0,
+        'namespace::clean'        => 0,
+        'Date::Utils'             => '0.04',
+        'Date::Persian::Simple'   => 0,
+        'Term::ANSIColor::Markup' => '0.06'
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Calendar-Persian-*' },

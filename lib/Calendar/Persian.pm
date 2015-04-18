@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.10';
+$Calendar::Persian::VERSION = '0.11';
 
 =head1 NAME
 
@@ -8,52 +8,42 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11
 
 =cut
 
-our $DEBUG = 0;
-
-use strict; use warnings;
 use Data::Dumper;
-use Time::localtime;
-use POSIX qw/floor ceil/;
-use Date::Calc qw/Delta_Days Day_of_Week Add_Delta_Days/;
+use Term::ANSIColor::Markup;
+use Date::Persian::Simple;
+use Date::Utils qw(
+    $PERSIAN_YEAR
+    $PERSIAN_MONTH
+    $PERSIAN_MONTHS
+    $PERSIAN_DAYS
 
-my $GREGORIAN_EPOCH = 1721425.5;
-my $PERSIAN_EPOCH   = 1948320.5;
+    persian_to_gregorian
+    persian_to_julian
+    julian_to_persian
+    gregorian_to_julian
+    days_in_persian_month_year
+);
 
-my $MONTHS = [
-    '',
-    'Farvardin',  'Ordibehesht',  'Khordad',  'Tir',  'Mordad',  'Shahrivar',
-    'Mehr'     ,  'Aban'       ,  'Azar'   ,  'Dey',  'Bahman',  'Esfand' ];
+use Moo;
+use namespace::clean;
 
-my $DAYS = [
-    'Yekshanbeh',  'Doshanbeh', 'Seshhanbeh', 'Chaharshanbeh',
-    'Panjshanbeh', 'Jomeh',     'Shanbeh' ];
+use overload q{""} => 'as_string', fallback => 1;
 
-sub new {
-    my ($class, $yyyy, $mm, $dd) = @_;
+has year  => (is => 'rw', isa => $PERSIAN_YEAR,  predicate => 1);
+has month => (is => 'rw', isa => $PERSIAN_MONTH, predicate => 1);
 
-    my $self  = {};
-    bless $self, $class;
+sub BUILD {
+    my ($self) = @_;
 
-    if (defined($yyyy) && defined($mm) && defined($dd)) {
-        _validate_date($yyyy, $mm, $dd)
+    unless ($self->has_year && $self->has_month) {
+        my $date = Date::Persian::Simple->new;
+        $self->year($date->year);
+        $self->month($date->month);
     }
-    else {
-        my $today = localtime;
-        $yyyy = ($today->year+1900) unless defined $yyyy;
-        $mm = ($today->mon+1) unless defined $mm;
-        $dd = $today->mday unless defined $dd;
-        ($yyyy, $mm, $dd) = $self->from_gregorian($yyyy, $mm, $dd);
-    }
-
-    $self->{yyyy} = $yyyy;
-    $self->{mm}   = $mm;
-    $self->{dd}   = $dd;
-
-    return $self;
 }
 
 =head1 DESCRIPTION
@@ -67,389 +57,203 @@ official  calendar  of  the  country. The  starting  point of the current Irania
 calendar is  the  vernal equinox occurred on Friday March 22 of the year A.D. 622.
 Persian Calendar for the month of Farvadin year 1390.
 
-=head1 Persian Calendar for the month of Farvadin year 1390.
+    +---------------------------------------------------------------------------------------------------------------+
+    |                                             Farvardin   [1394 BE]                                             |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |    Yekshanbeh |     Doshanbeh |    Seshhanbeh | Chaharshanbeh |   Panjshanbeh |         Jomeh |       Shanbeh |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |                                                                                               |             1 |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |             2 |             3 |             4 |             5 |             6 |             7 |             8 |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |             9 |            10 |            11 |            12 |            13 |            14 |            15 |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |            16 |            17 |            18 |            19 |            20 |            21 |            22 |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |            23 |            24 |            25 |            26 |            27 |            28 |            29 |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+    |            30 |            31 |                                                                               |
+    +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
 
-            Farvardin [1390]
+=head1 SYNOPSIS
 
-    Sun  Mon  Tue  Wed  Thu  Fri  Sat
-           1    2    3    4    5    6
-      7    8    9   10   11   12   13
-     14   15   16   17   18   19   20
-     21   22   23   24   25   26   27
-     28   29   30   31
+    use strict; use warnings;
+    use Calendar::Persian;
 
-=head1 MONTHS
+    # prints current month calendar
+    print Calendar::Persian->new, "\n";
+    print Calendar::Persian->new->current, "\n";
 
-    Order     Modern Persian Name
-    1         Farvardin
-    2         Ordibehesht
-    3         Xordad
-    4         Tir
-    5         Amordad
-    6         Sahrivar
-    7         Mehr
-    8         Aban
-    9         Azar
-    10        Dey
-    11        Bahman
-    12        Esfand
+    # prints calendar for the first month of year 1394
+    print Calendar::Persian->new({ month => 1, year => 1394 }), "\n";
 
-=head1 WEEKDAYS
+    # prints persian month calendar in which the given gregorian date falls in.
+    print Calendar::Persian->new->from_gregorian(2015, 1, 14), "\n";
 
-    Number   Gregorian    Persian
-    0        Sunday       Yekshanbeh
-    1        Monday       Doshanbeh
-    2        Tuesday      Seshhanbeh
-    3        Wednesday    Chaharshanbeh
-    4        Thursday     Panjshanbeh
-    5        Friday       Jomeh
-    6        Saturday     Shanbeh
+    # prints persian month calendar in which the given julian date falls in.
+    print Calendar::Persian->new->from_julian(2457102.5), "\n";
+
+=head1 PERSIAN MONTHS
+
+    +-------+-------------------------------------------------------------------+
+    | Month | Persian Name                                                      |
+    +-------+-------------------------------------------------------------------+
+    |     1 | Farvardin                                                         |
+    |     2 | Ordibehesht                                                       |
+    |     3 | Xordad                                                            |
+    |     4 | Tir                                                               |
+    |     5 | Amordad                                                           |
+    |     6 | Sahrivar                                                          |
+    |     7 | Mehr                                                              |
+    |     8 | Aban                                                              |
+    |     9 | Azar                                                              |
+    |    10 | Dey                                                               |
+    |    11 | Bahman                                                            |
+    |    12 | Esfand                                                            |
+    +-------+-------------------------------------------------------------------+
+
+=head1 PERSIAN DAYS
+
+    +-------+---------------+---------------------------------------------------+
+    | Index | Persian Name  | English Name                                      |
+    +-------+---------------+---------------------------------------------------+
+    |     0 | Yekshanbeh    | Sunday                                            |
+    |     1 | Doshanbeh     | Monday                                            |
+    |     2 | Seshhanbeh    | Tuesday                                           |
+    |     3 | Chaharshanbeh | Wednesday                                         |
+    |     4 | Panjshanbeh   | Thursday                                          |
+    |     5 | Jomeh         | Friday                                            |
+    |     6 | Shanbeh       | Saturday                                          |
+    +-------+---------------+---------------------------------------------------+
+
+=head1 CONSTRUCTOR
+
+It expects month and year optionally.By default it gets current Persian month and
+year.
+
+    use strict; use warnings;
+    use Calendar::Persian;
+
+    # prints current month calendar
+    print Calendar::Persian->new, "\n";
+
+    # prints calendar for the first month of year 1394.
+    print Calendar::Persian->new({ month => 1, year => 1394 }), "\n";
+
 
 =head1 METHODS
 
-=head2 to_gregorian(yyyy, mm, dd)
+=head2 current()
 
-Converts Persian date to Gregorian date.
+Returns current month of the Persian calendar.
 
+    use strict; use warnings;
     use Calendar::Persian;
 
-    my $persian = Calendar::Persian->new();
-    my ($yyyy, $mm, $dd) = $persian->to_gregorian();
+    print Calendar::Persian->new->current, "\n";
 
 =cut
 
-sub to_gregorian {
-    my ($self, $yyyy, $mm, $dd) = @_;
+sub current {
+    my ($self) = @_;
 
-    $yyyy = $self->{yyyy} unless defined $yyyy;
-    $mm   = $self->{mm}   unless defined $mm;
-    $dd   = $self->{dd}   unless defined $dd;
-
-    _validate_date($yyyy, $mm, $dd);
-
-    print {*STDOUT} "Persian: YYYY [$yyyy] MM [$mm] DD [$dd]\n" if $DEBUG;
-
-    my $julian = _to_julian($yyyy, $mm, $dd);
-    ($yyyy, $mm, $dd) =  _julian_to_gregorian($julian);
-
-    print {*STDOUT} "Gregorian: YYYY [$yyyy] MM [$mm] DD [$dd]\n" if $DEBUG;
-
-    return ($yyyy, $mm, $dd);
+    my $date = Date::Persian::Simple->new;
+    return _calendar($date->year, $date->month);
 }
 
-=head2 from_gregorian(yyyy, mm, dd)
+=head2 from_gregorian($year, $month, $day)
 
-Converts given Gregorian date to Persian date.
+Returns persian month calendar in which the given gregorian date falls in.
 
+    use strict; use warnings;
     use Calendar::Persian;
 
-    my $persian = Calendar::Persian->new();
-    my ($yyyy, $mm, $dd) = $persian->from_gregorian(2011, 3, 22);
+    print Calendar::Persian->new->from_gregorian(2015, 4, 18), "\n";
 
 =cut
 
 sub from_gregorian {
-    my ($self, $yyyy, $mm, $dd) = @_;
+    my ($self, $year, $month, $day) = @_;
 
-    _validate_date($yyyy, $mm, $dd);
+    my $julian_date = gregorian_to_julian($year, $month, $day);
+    my ($y, $m, $d) = julian_to_persian($julian_date);
 
-    print {*STDOUT} "Gregorian: YYYY [$yyyy] MM [$mm] DD [$dd]\n" if $DEBUG;
-
-    my $julian = _gregorian_to_julian($yyyy, $mm, $dd) + (floor(0 + 60 * (0 + 60 * 0) + 0.5) / 86400.0);
-
-    ($yyyy, $mm, $dd) = _from_julian($julian);
-
-    print {*STDOUT} "Persian: YYYY [$yyyy] MM [$mm] DD [$dd]\n" if $DEBUG;
-
-    return ($yyyy, $mm, $dd);
+    return _calendar($y, $m);
 }
 
-=head2 is_leap(yyyy)
+=head2 from_julian($julian_date)
 
-Checks if the given year in Persian calendar is a leap year or not. Return 1 or 0
-depending whether it is a leap year or not.
-
-    use Calendar::Persian;
-
-    my $persian = Calendar::Persian->new();
-    my $is_leap_year = $persian->is_leap(1389);
-
-=cut
-
-sub is_leap {
-    my ($self, $yyyy) = @_;
-
-    return (((((($yyyy - (($yyyy > 0) ? 474 : 473)) % 2820) + 474) + 38) * 682) % 2816) < 682;
-}
-
-=head2 as_string()
-
-Return Persian date in human readable format.
+Returns persian month calendar in which the given julian date falls in.
 
     use strict; use warnings;
     use Calendar::Persian;
 
-    my $persian = Calendar::Persian->new(1389, 9, 16);
-    print "Persian date is " . $persian->as_string() . "\n";
+    print Calendar::Persian->new->from_julian(2457102.5), "\n";
 
 =cut
+
+sub from_julian {
+    my ($self, $julian) = @_;
+
+    my ($year, $month, $day) = julian_to_persian($julian);
+    return _calendar($year, $month);
+}
 
 sub as_string {
     my ($self) = @_;
 
-    return sprintf("%02d, %s %04d", $self->{dd}, $MONTHS->[$self->{mm}], $self->{yyyy});
+    return _calendar($self->year, $self->month);
 }
 
-=head2 dow(yyyy, mm, dd)
+#
+#
+# PRIVATE METHODS
 
-Get day of the week of the given Persian date, starting with sunday (0).
+sub _calendar {
+    my ($year, $month) = @_;
 
-    use strict; use warnings;
-    use Calendar::Persian;
+    my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
+    my $start_index = $date->day_of_week;
+    my $days = days_in_persian_month_year($month, $year);
 
-    my $persian = Calendar::Persian->new();
-    print "Day of the week; [" . $persian->dow() . "]\n";
+    my $line1 = '<blue><bold>+' . ('-')x111 . '+</bold></blue>';
+    my $line2 = '<blue><bold>|</bold></blue>' .
+                (' ')x45 . '<yellow><bold>' .
+                sprintf("%-11s [%04d BE]", $PERSIAN_MONTHS->[$month], $year) .
+                '</bold></yellow>' . (' ')x45 . '<blue><bold>|</bold></blue>';
+    my $line3 = '<blue><bold>+';
 
-=cut
-
-sub dow {
-    my ($self, $yyyy, $mm, $dd) = @_;
-
-    $yyyy = $self->{yyyy} unless defined $yyyy;
-    $mm   = $self->{mm}   unless defined $mm;
-    $dd   = $self->{dd}   unless defined $dd;
-
-    _validate_date($yyyy, $mm, $dd);
-
-    return _julian_dow(_to_julian($yyyy, $mm, $dd));
-}
-
-=head2 today()
-
-Return today's date is Persian calendar as list in the format yyyy,mm,dd.
-
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    my $persian = Calendar::Persian->new();
-    my ($yyyy, $mm, $dd) = $persian->today();
-    print "Year [$yyyy] Month [$mm] Day [$dd]\n";
-
-=cut
-
-sub today {
-    my ($self) = @_;
-
-    my $today = localtime;
-    return $self->from_gregorian($today->year+1900, $today->mon+1, $today->mday);
-}
-
-=head2 days_in_month()
-
-Return number of days in the given year and month of Persian calendar.
-
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    my $calendar = Calendar::Persian->new(1390, 12, 26);
-    print "Days is Esfand 1390:    [" . $calendar->days_in_month()       . "]\n";
-    print "Days is Farvardin 1390: [" . $calendar->days_in_month(1390,1) . "]\n";
-
-=cut
-
-sub days_in_month {
-    my ($self, $yyyy, $mm) = @_;
-
-    $yyyy = $self->{yyyy} unless defined $yyyy;
-    $mm   = $self->{mm}   unless defined $mm;
-
-    _validate_date($yyyy, $mm, 1);
-
-    my (@start, @end);
-    @start = $self->to_gregorian($yyyy, $mm, 1);
-    if ($mm == 12) {
-        $yyyy += 1;
-        $mm    = 1;
+    for(1..7) {
+        $line3 .= ('-')x(15) . '+';
     }
-    else {
-        $mm += 1;
-    }
+    $line3 .= '</bold></blue>';
 
-    @end = $self->to_gregorian($yyyy, $mm, 1);
+    my $line4 = '<blue><bold>|</bold></blue>' .
+                join("<blue><bold>|</bold></blue>", @$PERSIAN_DAYS) .
+                '<blue><bold>|</bold></blue>';
 
-    return Delta_Days(@start, @end);
-}
+    my $calendar = join("\n", $line1, $line2, $line3, $line4, $line3)."\n";
+    $calendar .= '<blue><bold>|</bold></blue>               ';
+    map { $calendar .= "                " } (2..($start_index %= 7));
 
-=head2 get_calendar(yyyy, mm)
-
-Return  calendar  for given year and month in Persian calendar. It return current
-month of Persian calendar if no argument is passed in.
-
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    my $calendar = Calendar::Persian->new(1390,1,1);
-    print $calendar->get_calendar();
-
-    # Print calendar for year 1390 and month 1.
-    print $calendar->get_calendar(1390, 1);
-
-=cut
-
-sub get_calendar {
-    my ($self, $yyyy, $mm) = @_;
-
-    $yyyy = $self->{yyyy} unless defined $yyyy;
-    $mm   = $self->{mm} unless defined $mm;
-
-    _validate_date($yyyy, $mm, 1);
-
-    my ($calendar, $start_index, $days);
-    $calendar = sprintf("\n\t%s [%04d]\n", $MONTHS->[$mm], $yyyy);
-    $calendar .= "\nSun  Mon  Tue  Wed  Thu  Fri  Sat\n";
-
-    $start_index = $self->dow($yyyy, $mm, 1);
-    $days = $self->days_in_month($yyyy, $mm);
-    map { $calendar .= "     " } (1..($start_index%=7));
     foreach (1 .. $days) {
-        $calendar .= sprintf("%3d  ", $_);
-        $calendar .= "\n" unless (($start_index+$_)%7);
+        $calendar .= sprintf("<blue><bold>|</bold></blue><cyan><bold>%14d </bold></cyan>", $_);
+        if ($_ != $days) {
+            $calendar .= "<blue><bold>|</bold></blue>\n" . $line3 . "\n"
+                unless (($start_index + $_) % 7);
+        }
+        elsif ($_ == $days) {
+            my $x = 7 - (($start_index + $_) % 7);
+            if (($x >= 2) && ($x != 7)) {
+                $calendar .= '<blue><bold>|</bold></blue>               ';
+                map { $calendar .= ' 'x16 } (1..$x-1);
+            }
+        }
     }
 
-    return sprintf("%s\n\n", $calendar);
-}
+    $calendar = sprintf("%s<blue><bold>|</bold></blue>\n%s\n", $calendar, $line3);
 
-=head2 debug()
-
-Turn the DEBUG on/off by passing 1/0 respectively.
-
-    use Calendar::Persian;
-
-    my $persian = Calendar::Persian->new();
-    $persian->debug(1);
-
-=cut
-
-sub debug {
-    my ($self, $flag) = @_;
-
-    die("ERROR: Invalid value for DEBUG.\n") unless ($flag =~ /^[0|1]$/);
-    $DEBUG = $flag;
-}
-
-sub _julian_dow {
-    my ($julian) = @_;
-
-    return floor(($julian + 1.5)) % 7;
-}
-
-sub _is_gregorian_leap {
-    my ($yyyy) = @_;
-
-    return (($yyyy % 4) == 0) &&
-            (!((($yyyy % 100) == 0) && (($yyyy % 400) != 0)));
-}
-
-sub _gregorian_to_julian {
-    my ($yyyy, $mm, $dd) = @_;
-
-    return ($GREGORIAN_EPOCH - 1) +
-           (365 * ($yyyy - 1)) +
-           floor(($yyyy - 1) / 4) +
-           (-floor(($yyyy - 1) / 100)) +
-           floor(($yyyy - 1) / 400) +
-           floor((((367 * $mm) - 362) / 12) +
-           (($mm <= 2) ? 0 : (_is_gregorian_leap($yyyy) ? -1 : -2)) +
-           $dd);
-}
-
-sub _julian_to_gregorian {
-    my ($julian) = @_;
-
-    my $wjd        = floor($julian - 0.5) + 0.5;
-    my $depoch     = $wjd - $GREGORIAN_EPOCH;
-    my $quadricent = floor($depoch / 146097);
-    my $dqc        = $depoch % 146097;
-    my $cent       = floor($dqc / 36524);
-    my $dcent      = $dqc % 36524;
-    my $quad       = floor($dcent / 1461);
-    my $dquad      = $dcent % 1461;
-    my $yindex     = floor($dquad / 365);
-    my $year       = ($quadricent * 400) + ($cent * 100) + ($quad * 4) + $yindex;
-
-    $year++ unless (($cent == 4) || ($yindex == 4));
-
-    my $yearday = $wjd - _gregorian_to_julian($year, 1, 1);
-    my $leapadj = (($wjd < _gregorian_to_julian($year, 3, 1)) ? 0 : ((_is_gregorian_leap($year) ? 1 : 2)));
-    my $month   = floor(((($yearday + $leapadj) * 12) + 373) / 367);
-    my $day     = ($wjd - _gregorian_to_julian($year, $month, 1)) + 1;
-
-    return ($year, $month, $day);
-}
-
-sub _to_julian {
-    my ($yyyy, $mm, $dd) = @_;
-
-    my $epbase = $yyyy - (($yyyy >= 0) ? 474 : 473);
-    my $epyear = 474 + ($epbase % 2820);
-
-    return $dd
-           +
-           (($mm <= 7)
-             ?
-             (($mm - 1) * 31)
-             :
-             ((($mm - 1) * 30) + 6)
-           )
-           +
-           floor((($epyear * 682) - 110) / 2816)
-           +
-           ($epyear - 1) * 365
-           +
-           floor($epbase / 2820) * 1029983
-           +
-           ($PERSIAN_EPOCH - 1);
-}
-
-sub _from_julian {
-    my ($julian) = @_;
-
-    $julian = floor($julian) + 0.5;
-    my $depoch = $julian - _to_julian(475, 1, 1);
-    my $cycle  = floor($depoch / 1029983);
-    my $cyear  = $depoch % 1029983;
-
-    my $ycycle;
-    if ($cyear == 1029982) {
-        $ycycle = 2820;
-    }
-    else {
-        my $aux1 = floor($cyear / 366);
-        my $aux2 = $cyear % 366;
-        $ycycle = floor(((2134 * $aux1) + (2816 * $aux2) + 2815) / 1028522) + $aux1 + 1;
-    }
-
-    my $yyyy = $ycycle + (2820 * $cycle) + 474;
-    if ($yyyy <= 0) {
-        $yyyy--;
-    }
-
-    my $yday = ($julian - _to_julian($yyyy, 1, 1)) + 1;
-    my $mm   = ($yday <= 186) ? ceil($yday / 31) : ceil(($yday - 6) / 30);
-    my $dd   = ($julian - _to_julian($yyyy, $mm, 1)) + 1;
-
-    return ($yyyy, $mm, $dd);
-}
-
-sub _validate_date {
-    my ($yyyy, $mm, $dd) = @_;
-
-    die("ERROR: Invalid year [$yyyy].\n")
-        unless (defined($yyyy) && ($yyyy =~ /^\d{4}$/) && ($yyyy > 0));
-    die("ERROR: Invalid month [$mm].\n")
-        unless (defined($mm) && ($mm =~ /^\d{1,2}$/) && ($mm >= 1) && ($mm <= 12));
-    die("ERROR: Invalid day [$dd].\n")
-        unless (defined($dd) && ($dd =~ /^\d{1,2}$/) && ($dd >= 1) && ($dd <= 31));
+    return Term::ANSIColor::Markup->colorize($calendar);
 }
 
 =head1 AUTHOR

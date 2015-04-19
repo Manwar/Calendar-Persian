@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.11';
+$Calendar::Persian::VERSION = '0.12';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.11
+Version 0.12
 
 =cut
 
@@ -233,9 +233,10 @@ sub _calendar {
                 '<blue><bold>|</bold></blue>';
 
     my $calendar = join("\n", $line1, $line2, $line3, $line4, $line3)."\n";
-    $calendar .= '<blue><bold>|</bold></blue>               ';
-    map { $calendar .= "                " } (2..($start_index %= 7));
-
+    if ($start_index % 7 != 0) {
+        $calendar .= '<blue><bold>|</bold></blue>               ';
+        map { $calendar .= "                " } (2..($start_index %= 7));
+    }
     foreach (1 .. $days) {
         $calendar .= sprintf("<blue><bold>|</bold></blue><cyan><bold>%14d </bold></cyan>", $_);
         if ($_ != $days) {

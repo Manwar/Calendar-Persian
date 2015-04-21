@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.12';
+$Calendar::Persian::VERSION = '0.13';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13
 
 =cut
 
@@ -245,8 +245,8 @@ sub _calendar {
         }
         elsif ($_ == $days) {
             my $x = 7 - (($start_index + $_) % 7);
+            $calendar .= '<blue><bold>|</bold></blue>               ';
             if (($x >= 2) && ($x != 7)) {
-                $calendar .= '<blue><bold>|</bold></blue>               ';
                 map { $calendar .= ' 'x16 } (1..$x-1);
             }
         }

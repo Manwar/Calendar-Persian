@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.13';
+$Calendar::Persian::VERSION = '0.14';
 
 =head1 NAME
 
@@ -8,36 +8,29 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.13
+Version 0.14
 
 =cut
 
 use Data::Dumper;
 use Term::ANSIColor::Markup;
 use Date::Persian::Simple;
-use Date::Utils qw(
-    $PERSIAN_YEAR
-    $PERSIAN_MONTH
-    $PERSIAN_MONTHS
-    $PERSIAN_DAYS
-
-    persian_to_gregorian
-    persian_to_julian
-    julian_to_persian
-    gregorian_to_julian
-    days_in_persian_month_year
-);
 
 use Moo;
 use namespace::clean;
 
 use overload q{""} => 'as_string', fallback => 1;
 
-has year  => (is => 'rw', isa => $PERSIAN_YEAR,  predicate => 1);
-has month => (is => 'rw', isa => $PERSIAN_MONTH, predicate => 1);
+has year  => (is => 'rw', predicate => 1);
+has month => (is => 'rw', predicate => 1);
+
+with 'Date::Utils::Persian';
 
 sub BUILD {
     my ($self) = @_;
+
+    $self->validate_year($self->year)   if $self->has_year;
+    $self->validate_month($self->month) if $self->has_month;
 
     unless ($self->has_year && $self->has_month) {
         my $date = Date::Persian::Simple->new;
@@ -158,7 +151,7 @@ sub current {
     my ($self) = @_;
 
     my $date = Date::Persian::Simple->new;
-    return _calendar($date->year, $date->month);
+    return $self->_calendar($date->year, $date->month);
 }
 
 =head2 from_gregorian($year, $month, $day)
@@ -175,10 +168,10 @@ Returns persian month calendar in which the given gregorian date falls in.
 sub from_gregorian {
     my ($self, $year, $month, $day) = @_;
 
-    my $julian_date = gregorian_to_julian($year, $month, $day);
-    my ($y, $m, $d) = julian_to_persian($julian_date);
+    my $julian_date = $self->gregorian_to_julian($year, $month, $day);
+    my ($y, $m, $d) = $self->julian_to_persian($julian_date);
 
-    return _calendar($y, $m);
+    return $self->_calendar($y, $m);
 }
 
 =head2 from_julian($julian_date)
@@ -195,14 +188,14 @@ Returns persian month calendar in which the given julian date falls in.
 sub from_julian {
     my ($self, $julian) = @_;
 
-    my ($year, $month, $day) = julian_to_persian($julian);
-    return _calendar($year, $month);
+    my ($year, $month, $day) = $self->julian_to_persian($julian);
+    return $self->_calendar($year, $month);
 }
 
 sub as_string {
     my ($self) = @_;
 
-    return _calendar($self->year, $self->month);
+    return $self->_calendar($self->year, $self->month);
 }
 
 #
@@ -210,16 +203,16 @@ sub as_string {
 # PRIVATE METHODS
 
 sub _calendar {
-    my ($year, $month) = @_;
+    my ($self, $year, $month) = @_;
 
     my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
     my $start_index = $date->day_of_week;
-    my $days = days_in_persian_month_year($month, $year);
+    my $days = $self->days_in_persian_month_year($month, $year);
 
     my $line1 = '<blue><bold>+' . ('-')x111 . '+</bold></blue>';
     my $line2 = '<blue><bold>|</bold></blue>' .
                 (' ')x45 . '<yellow><bold>' .
-                sprintf("%-11s [%04d BE]", $PERSIAN_MONTHS->[$month], $year) .
+                sprintf("%-11s [%04d BE]", $self->persian_months->[$month], $year) .
                 '</bold></yellow>' . (' ')x45 . '<blue><bold>|</bold></blue>';
     my $line3 = '<blue><bold>+';
 
@@ -229,7 +222,7 @@ sub _calendar {
     $line3 .= '</bold></blue>';
 
     my $line4 = '<blue><bold>|</bold></blue>' .
-                join("<blue><bold>|</bold></blue>", @$PERSIAN_DAYS) .
+                join("<blue><bold>|</bold></blue>", @{$self->persian_days}) .
                 '<blue><bold>|</bold></blue>';
 
     my $calendar = join("\n", $line1, $line2, $line3, $line4, $line3)."\n";

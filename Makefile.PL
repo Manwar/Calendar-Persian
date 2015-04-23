@@ -17,12 +17,11 @@ WriteMakefile(
     BUILD_REQUIRES => {
         'Test::More' => 0,
     },
-
     PREREQ_PM => {
         'Moo'                     => 0,
         'namespace::clean'        => 0,
-        'Date::Utils'             => '0.04',
-        'Date::Persian::Simple'   => 0,
+        'Date::Utils::Persian'    => 0,
+        'Date::Persian::Simple'   => '0.02',
         'Term::ANSIColor::Markup' => '0.06'
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

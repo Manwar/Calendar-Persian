@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.15  Thu Apr 30 12:20:00 2015
+      - Added LICENSE file.
+
 0.14  Thu Apr 23 23:40:00 2015
       - Re-structured and consumed Date::Utils::Persian as Moo Role.
 

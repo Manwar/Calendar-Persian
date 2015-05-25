@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.15';
+$Calendar::Persian::VERSION = '0.16';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.15
+Version 0.16
 
 =cut
 
@@ -23,19 +23,17 @@ use overload q{""} => 'as_string', fallback => 1;
 
 has year  => (is => 'rw', predicate => 1);
 has month => (is => 'rw', predicate => 1);
-
-with 'Date::Utils::Persian';
+has date  => (is => 'ro', default   => sub { Date::Persian::Simple->new });
 
 sub BUILD {
     my ($self) = @_;
 
-    $self->validate_year($self->year)   if $self->has_year;
-    $self->validate_month($self->month) if $self->has_month;
+    $self->date->validate_year($self->year)   if $self->has_year;
+    $self->date->validate_month($self->month) if $self->has_month;
 
     unless ($self->has_year && $self->has_month) {
-        my $date = Date::Persian::Simple->new;
-        $self->year($date->year);
-        $self->month($date->month);
+        $self->year($self->date->year);
+        $self->month($self->date->month);
     }
 }
 
@@ -77,7 +75,7 @@ Persian Calendar for the month of Farvadin year 1390.
     print Calendar::Persian->new, "\n";
     print Calendar::Persian->new->current, "\n";
 
-    # prints calendar for the first month of year 1394
+    # prints persian month calendar for the first month of year 1394.
     print Calendar::Persian->new({ month => 1, year => 1394 }), "\n";
 
     # prints persian month calendar in which the given gregorian date falls in.
@@ -124,72 +122,45 @@ Persian Calendar for the month of Farvadin year 1390.
 It expects month and year optionally.By default it gets current Persian month and
 year.
 
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    # prints current month calendar
-    print Calendar::Persian->new, "\n";
-
-    # prints calendar for the first month of year 1394.
-    print Calendar::Persian->new({ month => 1, year => 1394 }), "\n";
-
-
 =head1 METHODS
 
 =head2 current()
 
 Returns current month of the Persian calendar.
 
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    print Calendar::Persian->new->current, "\n";
-
 =cut
 
 sub current {
     my ($self) = @_;
 
-    my $date = Date::Persian::Simple->new;
-    return $self->_calendar($date->year, $date->month);
+    return $self->_calendar($self->date->year, $self->date->month);
 }
 
 =head2 from_gregorian($year, $month, $day)
 
 Returns persian month calendar in which the given gregorian date falls in.
 
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    print Calendar::Persian->new->from_gregorian(2015, 4, 18), "\n";
-
 =cut
 
 sub from_gregorian {
     my ($self, $year, $month, $day) = @_;
 
-    my $julian_date = $self->gregorian_to_julian($year, $month, $day);
-    my ($y, $m, $d) = $self->julian_to_persian($julian_date);
+    my $date = $self->from_julian($self->gregorian_to_julian($year, $month, $day));
 
-    return $self->_calendar($y, $m);
+    return $self->_calendar($date->year, $date->month);
 }
 
 =head2 from_julian($julian_date)
 
 Returns persian month calendar in which the given julian date falls in.
 
-    use strict; use warnings;
-    use Calendar::Persian;
-
-    print Calendar::Persian->new->from_julian(2457102.5), "\n";
-
 =cut
 
 sub from_julian {
-    my ($self, $julian) = @_;
+    my ($self, $julian_date) = @_;
 
-    my ($year, $month, $day) = $self->julian_to_persian($julian);
-    return $self->_calendar($year, $month);
+    my $date = $self->date->from_julian($julian_date);
+    return $self->_calendar($date->year, $date->month);
 }
 
 sub as_string {
@@ -207,12 +178,12 @@ sub _calendar {
 
     my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
     my $start_index = $date->day_of_week;
-    my $days = $self->days_in_persian_month_year($month, $year);
+    my $days = $self->date->days_in_persian_month_year($month, $year);
 
     my $line1 = '<blue><bold>+' . ('-')x111 . '+</bold></blue>';
     my $line2 = '<blue><bold>|</bold></blue>' .
                 (' ')x45 . '<yellow><bold>' .
-                sprintf("%-11s [%04d BE]", $self->persian_months->[$month], $year) .
+                sprintf("%-11s [%04d BE]", $self->date->persian_months->[$month], $year) .
                 '</bold></yellow>' . (' ')x45 . '<blue><bold>|</bold></blue>';
     my $line3 = '<blue><bold>+';
 
@@ -222,7 +193,7 @@ sub _calendar {
     $line3 .= '</bold></blue>';
 
     my $line4 = '<blue><bold>|</bold></blue>' .
-                join("<blue><bold>|</bold></blue>", @{$self->persian_days}) .
+                join("<blue><bold>|</bold></blue>", @{$self->date->persian_days}) .
                 '<blue><bold>|</bold></blue>';
 
     my $calendar = join("\n", $line1, $line2, $line3, $line4, $line3)."\n";

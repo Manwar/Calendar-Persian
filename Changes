@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.17  Thu Jun 11 10:45:00 2015
+      - Updated method _calendar() to validate month and year.
+
 0.16  Mon May 25 13:05:00 2015
       - Dropped the dependency on Date::Utils::Persian.
       - Upgraded the dependency on Date::Persian::Simple v0.03.

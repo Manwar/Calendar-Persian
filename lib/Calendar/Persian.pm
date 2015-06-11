@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.16';
+$Calendar::Persian::VERSION = '0.17';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.16
+Version 0.17
 
 =cut
 
@@ -175,6 +175,9 @@ sub as_string {
 
 sub _calendar {
     my ($self, $year, $month) = @_;
+
+    $self->date->validate_month($month);
+    $self->date->validate_year($year);
 
     my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
     my $start_index = $date->day_of_week;

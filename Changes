@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.18  Fri Jun 19 10:15:00 2015
+      - Fixed the bug in the method from_gregorian().
+
 0.17  Thu Jun 11 10:45:00 2015
       - Updated method _calendar() to validate month and year.
 

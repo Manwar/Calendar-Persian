@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.17';
+$Calendar::Persian::VERSION = '0.18';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.17
+Version 0.18
 
 =cut
 
@@ -145,9 +145,7 @@ Returns persian month calendar in which the given gregorian date falls in.
 sub from_gregorian {
     my ($self, $year, $month, $day) = @_;
 
-    my $date = $self->from_julian($self->gregorian_to_julian($year, $month, $day));
-
-    return $self->_calendar($date->year, $date->month);
+    return $self->from_julian($self->date->gregorian_to_julian($year, $month, $day));
 }
 
 =head2 from_julian($julian_date)

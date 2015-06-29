@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.19  Mon Jun 29 03:25:00 2015
+      - Upgraded the dependency on Date::Persian::Simple v0.04.
+
 0.18  Fri Jun 19 10:15:00 2015
       - Fixed the bug in the method from_gregorian().
 

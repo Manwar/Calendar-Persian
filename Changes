@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.20  Thu Jul 09 09:45:00 2015
+      - Upgraded to use Date::Persian::Simple v0.05.
+
 0.19  Mon Jun 29 03:25:00 2015
       - Upgraded the dependency on Date::Persian::Simple v0.04.
 

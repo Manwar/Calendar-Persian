@@ -20,7 +20,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Moo'                     => '2.000000',
         'namespace::clean'        => '0.24',
-        'Date::Persian::Simple'   => '0.04',
+        'Date::Persian::Simple'   => '0.05',
         'Term::ANSIColor::Markup' => '0.06'
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },

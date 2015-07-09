@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION = '0.19';
+$Calendar::Persian::VERSION = '0.20';
 
 =head1 NAME
 
@@ -8,7 +8,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.19
+Version 0.20
 
 =cut
 

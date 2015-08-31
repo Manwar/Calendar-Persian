@@ -20,7 +20,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Moo'                   => '2.000000',
         'namespace::clean'      => '0.24',
-        'Date::Persian::Simple' => '0.06',
+        'Date::Persian::Simple' => '0.07',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Calendar-Persian-*' },

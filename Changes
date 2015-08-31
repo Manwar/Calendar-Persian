@@ -1,5 +1,8 @@
 Revision history for Calendar-Persian
 
+0.22  Mon Aug 31 12:20:00 2015
+      - Upgraded to use Date::Persian::Simple v0.07.
+
 0.21  Sun Jul 19 11:15:00 2015
       - Upgraded to use Date::Persian::Simple v0.06.
       - Making use of the method get_calendar() provided by Date::Persian::Simple.

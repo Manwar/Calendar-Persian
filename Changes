@@ -1,4 +1,10 @@
-Revision history for Calendar-Persian
+Revision history for Calendar::Persian
+
+0.23  Fri Apr 29 10:40:00 2016
+      - Added method as_svg() using the plugin Calendar::Plugin::Renderer.
+      - Upgraded to use Date::Persian::Simple v0.08.
+      - Added section "SEE ALSO".
+      - Updated copyright year information.
 
 0.22  Mon Aug 31 12:20:00 2015
       - Upgraded to use Date::Persian::Simple v0.07.

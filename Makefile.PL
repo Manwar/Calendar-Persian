@@ -9,7 +9,6 @@ WriteMakefile(
     VERSION_FROM       => 'lib/Calendar/Persian.pm',
     ABSTRACT_FROM      => 'lib/Calendar/Persian.pm',
     LICENSE            => 'artistic_2',
-    PL_FILES           => {},
     MIN_PERL_VERSION   => 5.006,
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
@@ -20,7 +19,7 @@ WriteMakefile(
     PREREQ_PM => {
         'Moo'                   => '2.000000',
         'namespace::clean'      => '0.24',
-        'Date::Persian::Simple' => '0.07',
+        'Date::Persian::Simple' => '0.08',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Calendar-Persian-*' },
@@ -29,8 +28,8 @@ WriteMakefile(
         resources => {
             repository => {
                 type => 'git',
-                url  => 'https://github.com/Manwar/Calendar-Persian.git',
-                web  => 'https://github.com/Manwar/Calendar-Persian',
+                url  => 'https://github.com/manwar/Calendar-Persian.git',
+                web  => 'https://github.com/manwar/Calendar-Persian',
             },
         }})
      : ()

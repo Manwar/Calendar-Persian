@@ -97,7 +97,7 @@ Persian Calendar for the month of Farvadin year 1390.
     print Calendar::Persian->new->from_julian(2457102.5), "\n";
 
     # prints current month persian calendar in SVG format if the plugin
-    # Calendar::Plugin::Renderer v0.04 or above is installed.
+    # Calendar::Plugin::Renderer v0.06 or above is installed.
     print Calendar::Persian->new->as_svg;
 
 =head1 PERSIAN MONTHS
@@ -149,7 +149,7 @@ Returns current month of the Persian calendar.
 sub current {
     my ($self) = @_;
 
-    return $self->date->get_calendar($self->date->month, $self->date->year);
+    return $self->date->get_calendar;
 }
 
 =head2 from_gregorian($year, $month, $day)
@@ -174,26 +174,30 @@ sub from_julian {
     my ($self, $julian_date) = @_;
 
     my $date = $self->date->from_julian($julian_date);
-    return $self->date->get_calendar($date->month, $date->year);
+    return $date->get_calendar;
 }
 
 =head2 as_svg($month, $year)
 
 Returns calendar for the given C<$month> and C<$year> rendered  in SVG format. If
 C<$month> and C<$year> missing, it would return current calendar month.The Plugin
-L<Calendar::Plugin::Renderer> v0.04 or above must be installed for this to work.
+L<Calendar::Plugin::Renderer> v0.06 or above must be installed for this to work.
 
 =cut
 
 sub as_svg {
     my ($self, $month, $year) = @_;
 
-    die "ERROR: Plugin Calendar::Plugin::Renderer v0.04 or above is missing,".
+    die "ERROR: Plugin Calendar::Plugin::Renderer v0.06 or above is missing,".
         "please install it first.\n" unless ($self->_plugin);
 
     if (defined $month && defined $year) {
         $self->date->validate_month($month);
         $self->date->validate_year($year);
+
+        if ($month !~ /^\d+$/) {
+            $month = $self->get_month_number($month);
+        }
     }
     else {
         $month = $self->month;
@@ -204,8 +208,8 @@ sub as_svg {
 
     return $self->svg_calendar({
         start_index => $date->day_of_week,
-        month_name  => $date->persian_months->[$month],
-        days        => $date->days_in_persian_month_year($month, $year),
+        month_name  => $date->get_month_name,
+        days        => $date->days_in_month_year($month, $year),
         year        => $year });
 }
 

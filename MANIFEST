@@ -6,6 +6,6 @@ README
 LICENSE
 lib/Calendar/Persian.pm
 t/00-load.t
-t/01-calendar-persian.t
+t/calendar-persian.t
 t/manifest.t
 t/pod.t

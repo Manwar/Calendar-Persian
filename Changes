@@ -1,5 +1,8 @@
 Revision history for Calendar::Persian
 
+0.25  Fri May 27 10:25:00 2016
+      - Fixed missing pre-reqs as reported by CPANTS.
+
 0.24  Mon May 23 11:10:00 2016
       - Upgraded to use Date::Persian::Simple v0.10.
       - Updated method as_svg() to handle month name.

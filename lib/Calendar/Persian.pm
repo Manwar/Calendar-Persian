@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION   = '0.25';
+$Calendar::Persian::VERSION   = '0.26';
 $Calendar::Persian::AUTHORITY = 'cpan:MANWAR';
 
 =head1 NAME
@@ -9,7 +9,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.25
+Version 0.26
 
 =cut
 
@@ -19,16 +19,13 @@ use Data::Dumper;
 use Date::Persian::Simple;
 use Moo;
 use namespace::clean;
-
-use Role::Tiny qw();
-use Module::Pluggable search_path => ['Calendar::Plugin'], require => 1, max_depth => 3;
+with 'Calendar::Plugin::Renderer';
 
 use overload q{""} => 'as_string', fallback => 1;
 
-has year    => (is => 'rw', predicate => 1);
-has month   => (is => 'rw', predicate => 1);
-has date    => (is => 'ro', default   => sub { Date::Persian::Simple->new });
-has _plugin => (is => 'rw', default   => sub { 0 });
+has year  => (is => 'rw', predicate => 1);
+has month => (is => 'rw', predicate => 1);
+has date  => (is => 'ro', default   => sub { Date::Persian::Simple->new });
 
 sub BUILD {
     my ($self) = @_;
@@ -39,13 +36,6 @@ sub BUILD {
     unless ($self->has_year && $self->has_month) {
         $self->year($self->date->year);
         $self->month($self->date->month);
-    }
-
-    my $plugins = [ Calendar::Persian::plugins ];
-    foreach (@{$plugins}) {
-        next unless ($_ eq 'Calendar::Plugin::Renderer');
-        Role::Tiny->apply_roles_to_object($self, $_);
-        $self->_plugin(1);
     }
 }
 
@@ -149,7 +139,7 @@ Returns current month of the Persian calendar.
 sub current {
     my ($self) = @_;
 
-    return $self->date->get_calendar;
+    return $self->as_text($self->date->month, $self->date->year);
 }
 
 =head2 from_gregorian($year, $month, $day)
@@ -174,36 +164,20 @@ sub from_julian {
     my ($self, $julian_date) = @_;
 
     my $date = $self->date->from_julian($julian_date);
-    return $date->get_calendar;
+    return $self->as_text($date->month, $date->year);
 }
 
 =head2 as_svg($month, $year)
 
 Returns calendar for the given C<$month> and C<$year> rendered  in SVG format. If
-C<$month> and C<$year> missing, it would return current calendar month.The Plugin
-L<Calendar::Plugin::Renderer> v0.06 or above must be installed for this to work.
+C<$month> and C<$year> missing, it would return current calendar month.
 
 =cut
 
 sub as_svg {
     my ($self, $month, $year) = @_;
 
-    die "ERROR: Plugin Calendar::Plugin::Renderer v0.06 or above is missing,".
-        "please install it first.\n" unless ($self->_plugin);
-
-    if (defined $month && defined $year) {
-        $self->date->validate_month($month);
-        $self->date->validate_year($year);
-
-        if ($month !~ /^\d+$/) {
-            $month = $self->get_month_number($month);
-        }
-    }
-    else {
-        $month = $self->month;
-        $year  = $self->year;
-    }
-
+    ($month, $year) = $self->validate_params($month, $year);
     my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
 
     return $self->svg_calendar({
@@ -213,10 +187,55 @@ sub as_svg {
         year        => $year });
 }
 
+=head2 as_text($month, $year)
+
+Returns color coded Persian calendar for the given C<$month> and C<$year>.
+
+=cut
+
+sub as_text {
+    my ($self, $month, $year) = @_;
+
+    ($month, $year) = $self->validate_params($month, $year);
+    my $date = Date::Persian::Simple->new({ year => $year, month => $month, day => 1 });
+
+    return $self->text_calendar(
+        {
+            start_index => $date->day_of_week,
+            month_name  => $date->get_month_name,
+            days        => $date->days_in_month_year($month, $year),
+            day_names   => $date->days,
+            year        => $year
+        });
+}
+
 sub as_string {
     my ($self) = @_;
 
-    return $self->date->get_calendar($self->month, $self->year);
+    return $self->as_text($self->month, $self->year);
+}
+
+#
+#
+# PRIVATE METHODS
+
+sub validate_params {
+    my ($self, $month, $year) = @_;
+
+    if (defined $month && defined $year) {
+        $self->date->validate_month($month);
+        $self->date->validate_year($year);
+
+        if ($month !~ /^\d+$/) {
+            $month = $self->date->get_month_number($month);
+        }
+    }
+    else {
+        $month = $self->month;
+        $year  = $self->year;
+    }
+
+    return ($month, $year);
 }
 
 =head1 AUTHOR

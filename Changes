@@ -1,5 +1,10 @@
 Revision history for Calendar::Persian
 
+0.26  Thu Jul 07 07:00:00 2016
+      - Added method as_text().
+      - Added dependency on Calendar::Plugin::Renderer v0.07.
+      - Added test for method as_svg().
+
 0.25  Fri May 27 10:25:00 2016
       - Fixed missing pre-reqs as reported by CPANTS.
 

@@ -13,15 +13,16 @@ WriteMakefile(
     CONFIGURE_REQUIRES => {
         'ExtUtils::MakeMaker' => 0,
     },
-    BUILD_REQUIRES   => {
-        'Test::More' => 0,
+    BUILD_REQUIRES => {
+        'Test::More'        => 0,
+        'File::Temp'        => 0,
+        'XML::SemanticDiff' => 0,
     },
     PREREQ_PM => {
-        'Moo'                   => '2.000000',
-        'namespace::clean'      => '0.24',
-        'Role::Tiny'            => '2.000001',
-        'Module::Pluggable'     => '5.1',
-        'Date::Persian::Simple' => '0.10',
+        'Moo'                        => '2.000000',
+        'namespace::clean'           => '0.24',
+        'Date::Persian::Simple'      => '0.10',
+        'Calendar::Plugin::Renderer' => '0.07',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Calendar-Persian-*' },

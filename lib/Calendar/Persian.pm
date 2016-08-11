@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION   = '0.26';
+$Calendar::Persian::VERSION   = '0.27';
 $Calendar::Persian::AUTHORITY = 'cpan:MANWAR';
 
 =head1 NAME
@@ -9,7 +9,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.26
+Version 0.27
 
 =cut
 
@@ -86,8 +86,7 @@ Persian Calendar for the month of Farvadin year 1390.
     # prints persian month calendar in which the given julian date falls in.
     print Calendar::Persian->new->from_julian(2457102.5), "\n";
 
-    # prints current month persian calendar in SVG format if the plugin
-    # Calendar::Plugin::Renderer v0.06 or above is installed.
+    # prints current month persian calendar in SVG format.
     print Calendar::Persian->new->as_svg;
 
 =head1 PERSIAN MONTHS

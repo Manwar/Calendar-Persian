@@ -1,5 +1,9 @@
 Revision history for Calendar::Persian
 
+0.27  Thu Aug 11 11:10:00 2016
+      - Updated pod section "SYNOPSIS".
+      - Upgraded to use Date::Persian::Simple v0.13.
+
 0.26  Thu Jul 07 07:00:00 2016
       - Added method as_text().
       - Added dependency on Calendar::Plugin::Renderer v0.07.

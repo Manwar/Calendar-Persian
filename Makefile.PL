@@ -28,6 +28,9 @@ WriteMakefile(
     clean => { FILES => 'Calendar-Persian-*' },
     (eval { ExtUtils::MakeMaker->VERSION(6.46) } ? (META_MERGE => {
         'meta-spec' => { version => 2 },
+        provides    => {
+            'Calendar::Persian' => { file => 'lib/Calendar/Persian.pm', version => '0.28' },
+        },
         resources => {
             repository => {
                 type => 'git',

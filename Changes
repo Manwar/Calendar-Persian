@@ -1,5 +1,8 @@
 Revision history for Calendar::Persian
 
+0.28  Mon Sep 12 09:50:00 2016
+      - Added key 'provides' to the Makefile.PL script.
+
 0.27  Thu Aug 11 11:10:00 2016
       - Updated pod section "SYNOPSIS".
       - Upgraded to use Date::Persian::Simple v0.13.

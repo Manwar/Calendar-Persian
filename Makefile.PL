@@ -22,14 +22,14 @@ WriteMakefile(
         'Moo'                        => '2.000000',
         'namespace::clean'           => '0.24',
         'Date::Persian::Simple'      => '0.13',
-        'Calendar::Plugin::Renderer' => '0.07',
+        'Calendar::Plugin::Renderer' => '0.11',
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean => { FILES => 'Calendar-Persian-*' },
     (eval { ExtUtils::MakeMaker->VERSION(6.46) } ? (META_MERGE => {
         'meta-spec' => { version => 2 },
         provides    => {
-            'Calendar::Persian' => { file => 'lib/Calendar/Persian.pm', version => '0.28' },
+            'Calendar::Persian' => { file => 'lib/Calendar/Persian.pm', version => '0.29' },
         },
         resources => {
             repository => {

@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION   = '0.28';
+$Calendar::Persian::VERSION   = '0.29';
 $Calendar::Persian::AUTHORITY = 'cpan:MANWAR';
 
 =head1 NAME
@@ -9,7 +9,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.28
+Version 0.29
 
 =cut
 
@@ -67,6 +67,9 @@ Persian Calendar for the month of Farvadin year 1390.
     +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
     |            30 |            31 |                                                                               |
     +---------------+---------------+---------------+---------------+---------------+---------------+---------------+
+
+The package L<App::calendr> provides command line tool  C<calendr> to display the
+supported calendars on the terminal.
 
 =head1 SYNOPSIS
 

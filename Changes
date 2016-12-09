@@ -1,5 +1,8 @@
 Revision history for Calendar::Persian
 
+0.31  Fri Dec 09 14:10:00 2016
+      - Added test scripts (t/meta-json.t and t/meta-yml.t).
+
 0.30  Sat Nov 12 21:05:00 2016
       - Upgraded to use Date::Persian::Simple v0.14.
 

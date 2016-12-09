@@ -11,3 +11,5 @@ t/manifest.t
 t/pod.t
 t/persian.xml
 t/fake-persian.xml
+t/meta-json.t
+t/meta-yml.t

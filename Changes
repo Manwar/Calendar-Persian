@@ -1,5 +1,9 @@
 Revision history for Calendar::Persian
 
+0.33  Wed Jan 04 02:10:00 2017
+      - Added sample code for method as_text() in the SYNOPSIS section.
+      - Updated pod document for method as_text().
+
 0.32  Thu Dec 22 12:05:00 2016
       - Upgraded to use Date::Persian::Simple v0.15.
 

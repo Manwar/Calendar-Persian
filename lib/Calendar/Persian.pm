@@ -1,6 +1,6 @@
 package Calendar::Persian;
 
-$Calendar::Persian::VERSION   = '0.32';
+$Calendar::Persian::VERSION   = '0.33';
 $Calendar::Persian::AUTHORITY = 'cpan:MANWAR';
 
 =head1 NAME
@@ -9,7 +9,7 @@ Calendar::Persian - Interface to Persian Calendar.
 
 =head1 VERSION
 
-Version 0.32
+Version 0.33
 
 =cut
 
@@ -91,6 +91,9 @@ supported calendars on the terminal.
 
     # prints current month persian calendar in SVG format.
     print Calendar::Persian->new->as_svg;
+
+    # prints current month persian calendar in text format.
+    print Calendar::Persian->new->as_text;
 
 =head1 PERSIAN MONTHS
 
@@ -191,7 +194,8 @@ sub as_svg {
 
 =head2 as_text($month, $year)
 
-Returns color coded Persian calendar for the given C<$month> and C<$year>.
+Returns  color  coded  Persian  calendar for the given C<$month> and C<$year>. If
+C<$month> and C<$year> missing, it would return current calendar month.
 
 =cut
 

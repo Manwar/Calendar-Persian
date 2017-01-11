@@ -1,5 +1,9 @@
 Revision history for Calendar::Persian
 
+0.34  Wed Jan 11 10:20:00 2017
+      - Added dependency on Calendar::Plugin::Renderer v0.12.
+      - Removed method validate_params(), no longer required.
+
 0.33  Wed Jan 04 02:10:00 2017
       - Added sample code for method as_text() in the SYNOPSIS section.
       - Updated pod document for method as_text().

@@ -1,5 +1,8 @@
 Revision history for Calendar::Persian
 
+0.35  Fri Jan 27 14:00:00 2017
+      - Upgraded to use Date::Persian::Simple v0.17.
+
 0.34  Wed Jan 11 10:20:00 2017
       - Added dependency on Calendar::Plugin::Renderer v0.12.
       - Removed method validate_params(), no longer required.
